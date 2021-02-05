@@ -1,82 +1,106 @@
-#include<caSSERT>
-struct subvector
-{
-int* mas;
-unsigned int top;
-unsigned int capacity;
-};
-bool init(subvector* qv)
-{
-    assert(qv!=nullptr);
-    qv->mas=nullptr;
-    qv->top=0;
-    qv->capacity=0;
-    return true;
+#include <iostream>
+using namespace std;
+
+struct subvector {
+    int *mas;
+    unsigned int top;
+    unsigned int capacity;
 };
 
-void izm(int **a, unsigned int old, unsigned int new_capacity)
-{
-    if ((*a)!=nullptr){
-        int* new_a = new int [new_capacity];
-    for (int i=0;i<old;i++)
-        new_a[i]=(*a)[i];
-    delete[] *a;
-    *a=new_a;
-    }
-};
-
-bool push_back(subvector *qv, int d)
-{
-    assert(qv!=nullptr); assert((qv->capacity)>=(qv->top));
-    if (qv->capacity == qv->top && qv->mas!=nullptr){
-        qv->capacity+=1;
-        izm(&(qv->mas),qv->top,qv->capacity);
-        qv->top++;
-        qv->mas[qv->top-1]=d;}
-    if (qv->mas==nullptr){
-        qv->top++;
-        qv->capacity++;
-        qv->mas[qv->top-1]=d;}
-    if ((qv->capacity)>(qv->top)){
-        qv->top++;
-        qv->mas[qv->top-1]=d;
-        }
-    return true;
-};
-int pop_back(subvector *qv)
-    {
-    assert(qv!=nullptr);
-    assert(qv->top!=0);
-    qv->top-=1;
-    return 0;
-};
-bool resize(subvector *qv, unsigned int new_capacity)
-{
-    assert(qv!=nullptr);
-    if (new_capacity<=qv->capacity)
-        return false;
-    izm(&qv->mas, qv->capacity, new_capacity);
-    qv->capacity=new_capacity;
-    return true;
-};
-void shrink_to_fit(subvector *qv)
-{
-    assert(qv!=nullptr);
-    assert((qv->top)<(qv->capacity));
-    izm(&qv->mas,qv->top,qv->top);
-    qv->capacity=qv->top;
-};
-void clear(subvector *qv)
-{
-    assert(qv!=nullptr);
+bool init(subvector *qv){
+    qv->mas = NULL;
     qv->top = 0;
-    delete[] qv->mas;
-};
-void destructor(subvector *qv)
+    qv->capacity =0;
+    return true;
+}
+
+
+bool push_back(subvector *qv, int d){
+    if((qv->top)<(qv->capacity)){
+        qv->mas[(qv->top)] = d;
+    }
+    else{
+        int *p= new int[(qv-> capacity)+1];
+        for(int i=0; i<(qv->capacity); i++){
+            qv->mas[i] = p[i];
+        }
+        delete[] qv->mas;
+        qv->capacity++;
+		qv->mas = p;
+		*(qv->mas + qv->top) = d;
+		qv->top++;
+    }
+    qv->top++;
+    return true;
+}
+
+
+int pop_back(subvector* qv)
 {
-    assert(qv!=nullptr);
-    assert(qv->mas!=nullptr);
-    delete[] qv->mas;
-    qv->mas = nullptr;
-    qv->top = qv->capacity = 0;
-};
+	if (qv->top > 0)
+	{
+		qv->top--;
+		int e = *(qv->mas + qv->top);
+		return e;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+bool resize(subvector* qv, unsigned int new_capacity)
+{
+	if (new_capacity > 0) {
+		int* p = new int[new_capacity];
+		for (int i = 0; i < qv->top; i++)
+		{
+			*(p + i) = *(qv->mas + i);
+		}
+		if (qv->capacity > 0) delete[] qv->mas;
+		qv->capacity = new_capacity;
+		qv->mas = p;
+		if (new_capacity < qv->top) qv->top = new_capacity;
+		return true;
+	}
+	else
+	{
+		if (qv->capacity > 0) delete[] qv->mas;
+		init(qv);
+		return true;
+	}
+}
+
+void shrink_to_fit(subvector* qv)
+{
+	if (qv->capacity > qv->top)
+	{
+		if (qv->top > 0)
+		{
+			int* p = new int[qv->top];
+			for (int i = 0; i < qv->top; i++)
+			{
+				*(p + i) = *(qv->mas + i);
+			}
+			delete[] qv->mas;
+			qv->capacity = qv->top;
+			qv->mas = p;
+		}
+		else
+		{
+			delete[] qv->mas;
+			init(qv);
+		}
+	}
+}
+void clear(subvector* qv)
+{
+	qv->top = 0;
+}
+
+void destructor(subvector* qv)
+{
+	delete[] qv->mas;
+	init(qv);
+}
+
